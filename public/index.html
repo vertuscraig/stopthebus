@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stop The Bus</title>
+    <link rel="stylesheet" href="./src/css/base.css" />
+    <link rel="stylesheet" href="./src/css/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Stop The Bus</h1>
+    </header>
+    <main class="wrapper">
+      <section class="game-select">
+        <div class="game-selection">
+          <h3 class="game-type"></h3>
+          <button type="button" class="restart hide">Cancel &times;</button>
+        </div>
+        <div class="create-new-game">
+          <button type="button" class="new-game">Create A New Game</button>
+          <form name="new-game-details" class="new-game-details hide">
+            <fieldset>
+              <label for="player">Enter your name or team name below:</label>
+              <input
+                type="text"
+                name="player"
+                class="player"
+                placeholder="The funky bus drivers!"
+                required
+              />
+            </fieldset>
+            <fieldset>
+              <label class="cats-label" for="cats">
+                Type Your Categories, comma separated, below:
+              </label>
+              <input
+                type="text"
+                name="cats"
+                class="cats"
+                placeholder="Boys Name, Girls Name, Country, etc"
+                required
+              />
+            </fieldset>
+            <button type="submit">
+              Click To Confirm Your Categories
+            </button>
+          </form>
+          <div class="new-game-details-output box hide">
+            <h4 class="game-details-output-title"></h4>
+            <button type="button" class="change-game-details">
+              if not, click here to make any changes
+            </button>
+            <ul class="category-output"></ul>
+            <div class="new-game-id"></div>
+          </div>
+          <button class="confirm-game hide">
+            Create your game!!
+          </button>
+        </div>
+
+        <div class="join-existing-game">
+          <button class="join-game">Join An Existing Game</button>
+          <form class="input-game-id hide">
+            <fieldset>
+              <label for="player">Enter your name or team name below:</label>
+              <input
+                type="text"
+                name="player"
+                class="player"
+                placeholder="The funky bus drivers!"
+              />
+            </fieldset>
+            <fieldset>
+              <label for="id">Enter game ID below:</label>
+              <input
+                type="text"
+                name="id"
+                class="game-id"
+                placeholder="cc91a9"
+              />
+            </fieldset>
+            <button type="submit" name="submitId" class="game-id-submit">
+              Join Game!!
+            </button>
+          </form>
+          <p class="id-err err-msg"></p>
+        </div>
+      </section>
+
+      <section class="generate-letter hide">
+        <div class="gen-letter">Click To Generate A Letter</div>
+      </section>
+
+      <div class="play-game hide">
+        <h1>Let's Play Stop The Bus</h1>
+        <h3 class="team-name">Player1</h3>
+        <div class="game-sheet">
+          <!-- Javascript loads playing sheet -->
+        </div>
+      </div>
+    </main>
+
+    <!-- update the version number as needed -->
+    <script src="/__/firebase/7.15.0/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <!-- <script defer src="/__/firebase/7.15.0/firebase-auth.js"></script> -->
+    <!-- <script defer src="/__/firebase/7.15.0/firebase-database.js"></script> -->
+    <script src="/__/firebase/7.15.0/firebase-firestore.js"></script>
+    <!-- <script defer src="/__/firebase/7.15.0/firebase-storage.js"></script> -->
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script src="/__/firebase/init.js"></script>
+    <script src="./src/index.js" type="module"></script>
+  </body>
+</html>

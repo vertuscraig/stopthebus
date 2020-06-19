@@ -1,0 +1,18 @@
+To deploy
+firebase deploy
+
+
+To view locally
+firebase serve --only hosting
+
+with modules
+firebase serve --host 127.0.0.1
+
+
+Ideas
+
+ - Create a popup promise playing sheet - see wes course async prompt ui lesson-72 - Save data to firestore
+ - need to check create game submit is valid in firebase, return popup as below.
+ - popup confirms game details, let player start now or join later (later print game sheet).
+ - print new game confirmation output for joining later
+ - add a creator: playerId to game doc in firestore
