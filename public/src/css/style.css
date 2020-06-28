@@ -309,6 +309,15 @@ form button {
   --bs-color: rgba(0, 0, 0, 0.6);
 }
 
+.tabpanel input {
+  background-color: #ffde66;
+  border: 1px solid var(--black) !important;
+}
+
+.tabpanel input:focus {
+  outline-color: var(--blue);
+}
+
 /* Filler EL */
 .filler-element {
   background-color: var(--blue);
@@ -324,11 +333,6 @@ form button {
   .tabs {
     width: 98%;
   }
-}
-
-.tabpanel input {
-  background-color: #ffde66;
-  border: 1px solid var(--black) !important;
 }
 
 @media screen and (max-width: 880px) {

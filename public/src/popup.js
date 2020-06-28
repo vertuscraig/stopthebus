@@ -39,16 +39,12 @@ export function ask(options) {
 
     // listen for the submit event on the buttons, resolve the data-value
     popupButtons.forEach((button) => {
-      button.addEventListener(
-        "click",
-        function (e) {
-          e.preventDefault();
-          resolve(e.target.dataset.value);
-          // remove it from the DOM entirely
-          destroyPopup(popup);
-        },
-        { once: true }
-      );
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+        resolve(e.target.dataset.value);
+        // remove it from the DOM entirely
+        destroyPopup(popup);
+      });
     });
 
     // put a very small timeout before we add the open class for animation to work

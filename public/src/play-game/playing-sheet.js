@@ -1,16 +1,15 @@
 import { gameConf } from "../new-game/create-new-game.js";
 import { wait } from "../popup.js";
 import { handleRestartGameCreate } from "../new-game/reset-game-create.js";
-import { gameListener, firestoreDelete, firestoreMerge } from "../firestore.js";
-
-// function generateLetter(gameData) {
-//   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-//   const letter = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-//   gameData.letter = letter;
-// }
+import { handleStopTheBus } from "./stop-the-bus.js";
+import {
+  gameListener,
+  firestoreDelete,
+  firestoreMerge,
+  firestoreUpdate,
+} from "../firestore.js";
 
 // TODO
-// - Add a realtime listener to firestore game playing var
 // - scores total function
 // - stop the bus button - disables input on answers
 // - Create exit game function that deletes game status and players
@@ -78,19 +77,19 @@ export function playingSheetEL(gameData, localPlayer, remotePlayers) {
   headerButtonsContainer.classList.add("buttons-container");
   playingSheetHeaderContainer.appendChild(headerButtonsContainer);
 
-  // Create Regenerate Letter Button
-  const newLetterButton = document.createElement("button");
-  newLetterButton.classList.add("button");
-  newLetterButton.textContent = "Change Letter";
-  newLetterButton.type = "button";
-  headerButtonsContainer.appendChild(newLetterButton);
+  // Stop The Bus Button
+  const stopTheBusButton = document.createElement("button");
+  stopTheBusButton.classList.add("button");
+  stopTheBusButton.type = "button";
+  stopTheBusButton.textContent = "STOP THE BUS!";
+  headerButtonsContainer.appendChild(stopTheBusButton);
 
-  // Create Play Again button
-  const playAgainButton = document.createElement("button");
-  playAgainButton.classList.add("button");
-  playAgainButton.type = "button";
-  playAgainButton.textContent = "Play Again";
-  headerButtonsContainer.appendChild(playAgainButton);
+  // Create Regenerate Letter Button
+  const newGameButton = document.createElement("button");
+  newGameButton.classList.add("button");
+  newGameButton.textContent = "Play Again";
+  newGameButton.type = "button";
+  headerButtonsContainer.appendChild(newGameButton);
 
   // Create Quit button
   const finishGameButton = document.createElement("button");
@@ -126,6 +125,7 @@ export function playingSheetEL(gameData, localPlayer, remotePlayers) {
     remotePlayers.forEach((remotePlayer, i) => {
       const tabs = document.createElement("button");
       tabs.setAttribute("role", "tab-remote");
+      // tabs.disabled = true; // change this to false once stop the bus button pressed
       tabs.id = `player${i + 2}`;
       tabs.innerHTML = `<h2>${remotePlayer.name}</h2>`;
       sheetTabList.appendChild(tabs);
@@ -144,7 +144,7 @@ export function playingSheetEL(gameData, localPlayer, remotePlayers) {
         data[i].category
       }</h3></div>
       <input
-        class="sheet-answers sheet-answers${i + 1}"
+        class="sheet-answers sheet-answers-local sheet-answers${i + 1}"
         name="sheet-answer${i + 1}"
        placeholder="${data[i].answer}"
      />
@@ -171,6 +171,7 @@ export function playingSheetEL(gameData, localPlayer, remotePlayers) {
     let remoteGameHTML = `<div class="sheet-header"><h2>Categories</h2></div>
       <div class="sheet-header"><h2>Answers</h2></div>
       <div class="sheet-header"><h2>Points</h2></div>`;
+    console.log(player);
     remoteGameHTML += localPlayingData
       .map((data, i) => {
         return `
@@ -178,20 +179,21 @@ export function playingSheetEL(gameData, localPlayer, remotePlayers) {
           data[i].category
         }</h3></div>
       <input
-        class="sheet-answers sheet-answers${i + 1}"
+        class="sheet-answers sheet-answers-remote sheet-answers${i + 1}"
         name="sheet-answer${i + 1}"
        placeholder="${data[i].answer}"
      />
       <input
-       class="sheet-points sheet-points${i + 1}"
+       class="sheet-points sheet-points-remote sheet-points${i + 1}"
        name="sheet-points${i + 1}"
        placeholder="${data[i].points}"
       />`;
       })
       .join("");
     const tabPanelsRemote = document.createElement("div");
-    tabPanelsRemote.classList.add("remote-tabpanel");
     tabPanelsRemote.classList.add("tabpanel");
+    tabPanelsRemote.classList.add("remote-tabpanel");
+    tabPanelsRemote.classList.add(`tabpanel-player${i + 2}`);
     tabPanelsRemote.setAttribute("role", "tabpanel");
     tabPanelsRemote.setAttribute("aria-labelledby", `player${i + 2}`);
     tabPanelsRemote.setAttribute("hidden", true);
@@ -206,6 +208,19 @@ export function playingSheetEL(gameData, localPlayer, remotePlayers) {
     sheetTabs.classList.add("open");
   }
   openContainer();
+
+  // testing delete data if page is reloaded or exited
+  // window.addEventListener("beforeunload", function (e) {
+  //   var myPageIsDirty = true; //you implement this logic...
+  //   if (myPageIsDirty) {
+  //     //following two lines will cause the browser to ask the user if they
+  //     //want to leave. The text of this dialog is controlled by the browser.
+  //     e.preventDefault(); //per the standard
+  //     e.returnValue = ""; //required for Chrome
+  //     console.log("leaving???");
+  //   }
+  //   //else: user is allowed to leave without a warning dialog
+  // });
 
   console.log(gameData);
   ////// PLAYER TABS LOGIC //////
@@ -242,21 +257,23 @@ export function playingSheetEL(gameData, localPlayer, remotePlayers) {
     button.addEventListener("click", handleTabClick);
   });
 
-  ////// GENERATE A NEW LETTER BUTTON //////
+  // Stop The Bus Event Listener
+  stopTheBusButton.addEventListener("click", () =>
+    handleStopTheBus(gameData, localPlayer, remotePlayers)
+  );
+
+  ////// GENERATE A NEW LETTER BUTTON - This is now PLAY AGAIN need to rename//////
   function handleGenNewLetter(gameData) {
     const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const letter = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
     gameData.letter = letter;
     letterContainer.innerHTML = `<h2>The Letter Is</h2><div class="playing-letter"><p>${gameData.letter}</p></div>`;
+    localPlayer[0].answers = null;
+    localPlayer[0].score = null;
+    firestoreUpdate("games", gameConf.gameId, { letter });
+    debugger;
   }
-  newLetterButton.addEventListener("click", handleGenNewLetter);
-
-  ////// PLAY AGAIN BUTTON //////
-  function handlePlayAgain() {
-    destroyEl(playingSheetContainer);
-    gameListener(gameData, localPlayer, remotePlayers);
-  }
-  playAgainButton.addEventListener("click", handlePlayAgain);
+  newGameButton.addEventListener("click", handleGenNewLetter);
 
   ////// QUIT BUTTON //////
   function handleQuitGame() {
@@ -265,8 +282,6 @@ export function playingSheetEL(gameData, localPlayer, remotePlayers) {
     const mainEl = document.querySelector("main");
     headerEl.classList.remove("hide");
     mainEl.classList.remove("hide");
-    // Delete Game from stopTheBus Doc in firestore
-    firestoreDelete("stopTheBus", gameData.gameId);
     // Set Players array to empty in Game Doc firestore
     firestoreMerge("players", gameConf.playerId, { currentGameId: null });
     // set gameData to null
@@ -278,24 +293,4 @@ export function playingSheetEL(gameData, localPlayer, remotePlayers) {
     // Need condition for when player has left without quitting, (delete player after no activity?)
   }
   finishGameButton.addEventListener("click", handleQuitGame);
-}
-
-// Deal with Score and Answers Below
-const pointsInputs = Array.from(document.querySelectorAll(".sheet-points"));
-
-export function sheetAnswers() {
-  const answerInputs = Array.from(document.querySelectorAll(".sheet-answers"));
-  answerInputs.forEach((answer, i) => {
-    answer.addEventListener("input", (e) => {
-      // do I need this is submitting all values on stop the bus button best bet, and save in an array.
-      // then another button for submitting points.
-      // then save these to firestore
-      // below outputs input value and iterator, push values to an array
-      console.log(e.target.value, i);
-      console.log(answer);
-      // doesn't work gives new values for each key press.
-      answer = { [i]: e.target.value };
-      console.log(answer);
-    });
-  });
 }
